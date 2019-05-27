@@ -1,10 +1,16 @@
 const express = require('express')
 const app = express();
+const server = require('http').createServer(app);
+const port = 3000;
+const io = require('socket.io')(server);
+io.on('connection', () => {
+    console.log(`Listening on port ${port}`);
 
-app.get('/', (req, res) => {
-    res.send('Hello World!')
+});
+server.listen(port);
+
+app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/pages/home.html');
 });
 
-app.listen(8000, () => {
-    console.log('Example app listening on port 8000!')
-});
+app.use(express.static(__dirname + '/pages'));
