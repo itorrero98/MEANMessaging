@@ -1,12 +1,8 @@
 const express = require('express')
 const app = express();
-const server = require('http').createServer(app);
+const server = require('http').Server(app);
 const port = 3000;
 const io = require('socket.io')(server);
-io.on('connection', () => {
-    console.log(`Listening on port ${port}`);
-
-});
 server.listen(port);
 
 app.get('/', function (req, res) {
@@ -14,3 +10,21 @@ app.get('/', function (req, res) {
 });
 
 app.use(express.static(__dirname + '/pages'));
+
+io.on('connection', function (socket) {
+    console.log("User has connected");
+
+    /* **************** Built in Socket Events ***************** */
+
+    socket.on('disconnect', () => {
+        console.log("User has disconnected");
+    })
+
+    /* **************** Our personal Socket Events ***************** */
+
+    socket.on('chatMessage', (message) => {
+        console.log(`User sent a message: ${message}`);
+        //emit to all user's the message that was just sent
+        io.emit('message', message);
+    })
+});
