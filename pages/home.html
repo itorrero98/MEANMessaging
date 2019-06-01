@@ -11,13 +11,17 @@
 <body>
     <ul id="messages"></ul>
     <form action="">
-        <input id="m" autocomplete="off" /><button>Send</button>
+        <input id="messageInput" autocomplete="off" />
+        <label id="colorPickerLabel">Color</label>
+        <input id="colorPicker" type="color" />
+        <button>Send</button>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
         $(function () {
+            console.log("Running this jQuery function");
             //establish a connection with the server
             var socket = io();
             //grab the form element on the page
@@ -26,18 +30,20 @@
             $('form').submit(function (e) {
                 //doesn't reload the page
                 e.preventDefault();
+                var message = $('#messageInput').val();
+                var messageColor = $('#colorPicker').val();
                 //emit an event that the server can recieve
                 //and pass in the value of the form input
-                socket.emit('chatMessage', $('#m').val());
+                socket.emit('chatMessage', message, messageColor);
                 //set the value of the input to blank to clear it
-                $('#m').val('');
+                $('#messageInput').val('');
                 //not sure wtf the point of this is, might be
                 //required for a function like this?
                 return false;
             });
             //On the client side, when we recieve a message event, add it as a list item which will display it to everyone.
-            socket.on('message', function (msg) {
-                $('#messages').append($('<li>').text(msg));
+            socket.on('message', function (msg, color) {
+                $('#messages').append($('<li>').text(msg).css('color', color));
             });
         });
     </script>

@@ -18,13 +18,13 @@ io.on('connection', function (socket) {
 
     socket.on('disconnect', () => {
         console.log("User has disconnected");
-    })
+    });
 
     /* **************** Our personal Socket Events ***************** */
 
-    socket.on('chatMessage', (message) => {
+    socket.on('chatMessage', (message, color) => {
         console.log(`User sent a message: ${message}`);
         //emit to all user's the message that was just sent
-        io.emit('message', message);
-    })
+        io.emit('message', message, color);
+    });
 });
