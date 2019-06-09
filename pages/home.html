@@ -2,16 +2,26 @@
 <html>
 
 <head>
-    <title>Socket.IO chat</title>
+    <title>The Meme Stream</title>
 
     <link rel="stylesheet" href="/styles/home.css" />
 
 </head>
 
 <body>
+    <!-- 
+        These 2 forms handle the input of text and the uploading of files
+        The file upload form needs to be reformatted so it is locked with the message input so it doesn't get hidden
+        when there are too many images
+    -->
     <ul id="messages"></ul>
-    <form action="">
-        <input id="messageInput" autocomplete="off" />
+    <form action="" enctype="multipart/form-data" method="post" id="imageUpload">
+        <input id="imageFile" type="file" name="picture" accept="image/*" />
+        <input type="submit" value="Upload">
+    </form>
+    <form action="" id="messageForm">
+        <input id="messageInput" autocomplete="off" maxlength="180" />
+        <label id='messageInputLabel'>0/180</label>
         <label id="colorPickerLabel">Color</label>
         <input id="colorPicker" type="color" />
         <button>Send</button>
@@ -20,13 +30,23 @@
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
+        //used as reference to all the input fields, this should probably be specific to the messageInput Label
+        let input = document.querySelector('input');
+        //set the event listener so when we change the input we call messageInputChanged
+        input.oninput = messageInputChanged;
+        //dynamically update the message input label with the remaining characters
+        function messageInputChanged(e) {
+            var messageLength = $('#messageInput').val().length;
+            $('#messageInputLabel').text(`${messageLength}/180`);
+        }
+
         $(function () {
             //establish a connection with the server
             var socket = io();
             //grab the form element on the page
             //This should be done with an ID ideally, incase you have multiple forms on a page
             //When we submit the form, call a function
-            $('form').submit(function (e) {
+            $('#messageForm').submit(function (e) {
                 //doesn't reload the page
                 e.preventDefault();
                 var message = $('#messageInput').val();
@@ -40,9 +60,36 @@
                 //required for a function like this?
                 return false;
             });
+            //When we submit our file upload
+            $('#imageUpload').submit(function (e) {
+                e.preventDefault();
+                //grab all form data  
+                var formData = new FormData($(this)[0]);
+                //Make a post request to the home page
+                //If we are successful, then let the server know that we just uploaded an image
+                //and give it the id
+                $.ajax({
+                    url: '/',
+                    type: 'POST',
+                    data: formData,
+                    async: false,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    success: function (photoID) {
+                        socket.emit('imageMessage', photoID);
+                    }
+                });
+                return false;
+            });
             //On the client side, when we recieve a message event, add it as a list item which will display it to everyone.
             socket.on('message', function (msg, color) {
                 $('#messages').append($('<li>').text(msg).css('color', color));
+            });
+            //On client side, when we get an image id, paste it into web browser
+            socket.on('imageSent', id => {
+                var urlString = `/photo/${id}`
+                $('#messages').append($('<li>').html(`<img src="${urlString}"/>`))
             });
         });
     </script>
