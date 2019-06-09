@@ -3,6 +3,7 @@ const app = express();
 const server = require('http').Server(app);
 const port = 3000;
 const io = require('socket.io')(server);
+const Filter = require('bad-words'), filter = new Filter();
 server.listen(port);
 
 app.get('/', function (req, res) {
@@ -25,6 +26,6 @@ io.on('connection', function (socket) {
     socket.on('chatMessage', (message, color) => {
         console.log(`User sent a message: ${message}`);
         //emit to all user's the message that was just sent
-        io.emit('message', message, color);
+        io.emit('message', filter.clean(message), color);
     });
 });
