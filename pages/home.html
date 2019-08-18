@@ -31,7 +31,7 @@
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
         //used as reference to all the input fields, this should probably be specific to the messageInput Label
-        let input = document.querySelector('input');
+        let input = document.querySelector('#messageForm');
         //set the event listener so when we change the input we call messageInputChanged
         input.oninput = messageInputChanged;
         //dynamically update the message input label with the remaining characters
@@ -76,7 +76,7 @@
                     cache: false,
                     contentType: false,
                     processData: false,
-                    success: function (photoID) {
+                    success: (photoID) => {
                         socket.emit('imageMessage', photoID);
                     }
                 });

@@ -1,0 +1,31 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font: 13px Helvetica, Arial;
+  background-color: #2e294e;
+}
+#pageContents {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+#pageHeading {
+  background: #2e294e;
+  color: #d90368;
+  font-size: 5em;
+  text-align: center;
+  height: 25%;
+  width: 100%;
+}
+#messageForm {
+  display: flex;
+  justify-content: center;
+  background: #eadeda;
+  height: 300px;
+  width: 50%;
+}
